@@ -1,0 +1,10 @@
+# ensure that the name label matches the actual name of the object for Namespaces
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: NameLabelMatch
+metadata:
+  name: namespace
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Namespace"]
