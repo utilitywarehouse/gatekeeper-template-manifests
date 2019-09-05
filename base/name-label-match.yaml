@@ -1,0 +1,112 @@
+# ensures that the 'name' label of an object matches the actual name
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: namelabelmatch
+spec:
+  crd:
+    spec:
+      names:
+        kind: NameLabelMatch
+        listKind: NameLabelMatchList
+        plural: namelabelmatches
+        singular: namelabelmatch
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package namelabelmatch
+
+        violation[{"msg": msg, "details": {
+            "label_name": label_name,
+            "metadata_name": metadata_name,
+            "kind": kind,
+            "namespace": namespace
+        }}] {
+          metadata_name := input.review.object.metadata.name
+          label_name := input.review.object.metadata.labels.name
+          kind := input.review.kind.kind
+          namespace := input.review.namespace
+
+          label_name != metadata_name
+
+          msg := sprintf("the label 'name' (%v) must match the actual name of the object (%v)",
+          [label_name, metadata_name])
+        }
+
+        test_matching_name_allowed {
+            not violation[{
+                "msg": "",
+                "details": {
+                    "label_name": "example-ns",
+                    "metadata_name": "example-ns",
+                    "kind": "Namespace",
+                    "namespace": "example-ns"
+                }
+            }] with input as {
+                "review": {
+                    "namespace": "example-ns",
+                    "kind": {
+                        "kind": "Namespace"
+                    },
+                    "object": {
+                        "metadata": {
+                            "name": "example-ns",
+                            "labels": {
+                              "name": "example-ns"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        test_not_matching_name_denied {
+            violation[{
+                "msg": "the label 'name' (other-ns) must match the actual name of the object (example-ns)",
+                "details": {
+                    "label_name": "other-ns",
+                    "metadata_name": "example-ns",
+                    "kind": "Namespace",
+                    "namespace": "example-ns"
+                }
+            }] with input as {
+                "review": {
+                    "namespace": "example-ns",
+                    "kind": {
+                        "kind": "Namespace"
+                    },
+                    "object": {
+                        "metadata": {
+                            "name": "example-ns",
+                            "labels": {
+                              "name": "other-ns"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        test_no_label_allowed {
+            not violation[{
+                "msg": "the label 'name' () must match the actual name of the object (example-ns)",
+                "details": {
+                    "label_name": "",
+                    "metadata_name": "example-ns",
+                    "kind": "Namespace",
+                    "namespace": "example-ns"
+                }
+            }] with input as {
+                "review": {
+                    "namespace": "example-ns",
+                    "kind": {
+                        "kind": "Namespace"
+                    },
+                    "object": {
+                        "metadata": {
+                            "name": "example-ns"
+                        }
+                    }
+                }
+            }
+        }

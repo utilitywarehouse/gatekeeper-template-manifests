@@ -1,0 +1,15 @@
+# restrict example.com as a host value for ingresses to two namespaces: example-ns and example-ns-two
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: IngressHostRestriction
+metadata:
+  name: example
+spec:
+  match:
+    kinds:
+      - apiGroups: ["extensions"]
+        kinds: ["Ingress"]
+  parameters:
+    host: "example.com"
+    namespaces:
+      - example-ns
+      - example-ns-two
