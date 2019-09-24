@@ -1,0 +1,13 @@
+# block namespace delete requests unless the namespace is annotated with example.com/delete-allowed: "true"
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: DeleteAnnotationRequirement
+metadata:
+  name: namespace
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Namespace"]
+  parameters:
+    name: "example.com/delete-allowed"
+    value: "true"
