@@ -4,5 +4,6 @@ bases:
   - ../base
   #  - github.com/utilitywarehouse/gatekeeper-template-manifests/base?ref=1.0.0
 resources:
+  - delete-namespace-annotation.yaml
   - ingress-host-restriction.yaml
   - namespace-name-label-match.yaml
