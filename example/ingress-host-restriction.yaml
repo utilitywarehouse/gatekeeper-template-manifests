@@ -1,4 +1,5 @@
-# restrict example.com as a host value for ingresses to two namespaces: example-ns and example-ns-two
+# restrict example.com as a host value for ingresses to two namespaces: example-ns and example-ns-two,
+# on a different set of paths
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: IngressHostRestriction
 metadata:
@@ -10,6 +11,9 @@ spec:
         kinds: ["Ingress"]
   parameters:
     host: "example.com"
-    namespaces:
-      - example-ns
-      - example-ns-two
+    namespacePathWhitelist:
+      example-ns:
+        - /example
+      example-ns-1:
+        - /metrics
+        - /app/example
