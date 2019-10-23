@@ -1,11 +1,13 @@
-all:
-	@docker build -t gatekeeper-template-manifests .
+test: opa kustomize constraint
 
-rego:
-	@docker build -t gatekeeper-template-manifests-rego --target $@ .
+opa:
+	@docker run --rm -v $$PWD:/src openpolicyagent/opa test -v /src/base
 
 kustomize:
-	@docker build -t gatekeeper-template-manifests-kustomize --target $@ .
+	@docker build -t gatekeeper-template-manifests-kustomize -f Dockerfile.kustomize .
+
+constraint:
+	@docker build -t gatekeeper-template-manifests-constraint -f Dockerfile.constraint .
 
 install-git-hooks:
 	@-rm -r .git/hooks

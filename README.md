@@ -27,12 +27,13 @@ go get -u sigs.k8s.io/kustomize
 
 ## Testing
 
-The rego policies and kustomize build can be tested with `make`.
+The rego policies, `ConstraintTemplates` and kustomize build can be tested with `make`.
 
 Or the tests can be ran separately:
 
 ```
-$ make rego
+$ make opa
+$ make constraint
 $ make kustomize
 ```
 
