@@ -27,10 +27,8 @@ allowed(whitelist, namespace, paths) {
     # check that this namespace has whitelisted paths
     count(whitelist[namespace]) > 0
 
-    # find the intersection of the whitelisted paths for this host/namespace and the paths defined in the ingress rule
+    # all the paths should be in the list of whitelisted paths for this namespace
     whitelisted_paths := {x | x = whitelist[namespace][_]}
-    test := paths & whitelisted_paths
-
-    # all the paths should intersect with the list of allowed paths
-    count(test) == count(paths)
+    paths_in_whitelist := paths & whitelisted_paths
+    count(paths_in_whitelist) == count(paths)
 }
