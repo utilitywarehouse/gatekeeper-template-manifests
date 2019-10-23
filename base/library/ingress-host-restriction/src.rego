@@ -1,22 +1,34 @@
 package ingresshostrestriction
 
-violation[{"msg": msg, "details": {"host": host, "namespace": namespace}}] {
-    host := input.review.object.spec.rules[_].host
+violation[{"msg": msg, "details": {"host": host, "namespace": namespace, "paths": paths}}] {
+    name := input.review.object.metadata.name
     namespace := input.review.namespace
-    allowed_namespaces := input.parameters.namespaces
+    host := input.review.object.spec.rules[i].host
+    paths := {x | x = input.review.object.spec.rules[i]["http"]["paths"][_].path}
+    whitelist := input.parameters.namespacePathWhitelist
 
     # resource kind is Ingress
-    input.review.kind.kind == "Ingress" 
+    input.review.kind.kind == "Ingress"
 
-    # ingress host matches blacklisted host
-    host == input.parameters.host 
+    # operation is CREATE or UPDATE
+    operations = {"CREATE", "UPDATE"}
+    operations[input.review.operation]
+
+    # ingress host matches the restricted host
+    host == input.parameters.host
     
-    # namespace is not in the list of allowed namespaces
-    not allowed(allowed_namespaces, namespace) 
+    # namespace+host+path(s) is not in the list of allowed namespaces+paths
+    not allowed(whitelist, namespace, paths)
 
-    msg := sprintf("%v is not a permitted host value for ingresses in this namespace (%v)", [host, namespace])
+    msg := sprintf("Ingress '%v' denied; the host and/or path values are not permitted for this namespace host=%v namespace=%v paths=%v", [name, host, namespace, paths])
 }
 
-allowed(allowed_namespaces, namespace) {
-    allowed_namespaces[_] == namespace
+allowed(whitelist, namespace, paths) {
+    # check that this namespace has whitelisted paths
+    count(whitelist[namespace]) > 0
+
+    # all the paths should be in the list of whitelisted paths for this namespace
+    whitelisted_paths := {x | x = whitelist[namespace][_]}
+    paths_in_whitelist := paths & whitelisted_paths
+    count(paths_in_whitelist) == count(paths)
 }
