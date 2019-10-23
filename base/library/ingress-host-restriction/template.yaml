@@ -1,0 +1,47 @@
+# restricts the use of a host to ingresses in a specific list of namespaces
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: ingresshostrestriction
+spec:
+  crd:
+    spec:
+      names:
+        kind: IngressHostRestriction
+        listKind: IngressHostRestrictionList
+        plural: ingresshostrestrictions
+        singular: ingresshostrestriction
+      validation:
+        openAPIV3Schema:
+          required: [host, namespaces]
+          properties:
+            host:
+              type: string
+            namespaces:
+              type: array
+              items: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package ingresshostrestriction
+
+        violation[{"msg": msg, "details": {"host": host, "namespace": namespace}}] {
+            host := input.review.object.spec.rules[_].host
+            namespace := input.review.namespace
+            allowed_namespaces := input.parameters.namespaces
+
+            # resource kind is Ingress
+            input.review.kind.kind == "Ingress" 
+
+            # ingress host matches blacklisted host
+            host == input.parameters.host 
+            
+            # namespace is not in the list of allowed namespaces
+            not allowed(allowed_namespaces, namespace) 
+
+            msg := sprintf("%v is not a permitted host value for ingresses in this namespace (%v)", [host, namespace])
+        }
+
+        allowed(allowed_namespaces, namespace) {
+            allowed_namespaces[_] == namespace
+        }
