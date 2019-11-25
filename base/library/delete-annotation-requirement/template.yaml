@@ -8,9 +8,6 @@ spec:
     spec:
       names:
         kind: DeleteAnnotationRequirement
-        listKind: DeleteAnnotationRequirementList
-        plural: deleteannotationrequirements
-        singular: deleteannotationrequirement
       validation:
         openAPIV3Schema:
           required: [name, value]

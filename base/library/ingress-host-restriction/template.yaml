@@ -8,9 +8,6 @@ spec:
     spec:
       names:
         kind: IngressHostRestriction
-        listKind: IngressHostRestrictionList
-        plural: ingresshostrestrictions
-        singular: ingresshostrestriction
       validation:
         openAPIV3Schema:
           required: [host, namespacePathWhitelist]
