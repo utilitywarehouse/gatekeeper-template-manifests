@@ -1,24 +1,12 @@
 version: 2.0
 jobs:
-  opa:
+  test:
     machine: true
     steps:
       - checkout
-      - run: docker run --rm -v $PWD:/src openpolicyagent/opa test -v /src/base/library
-  constraint:
-    machine: true
-    steps:
-      - checkout
-      - run: docker build -f Dockerfile.constraint .
-  kustomize:
-    machine: true
-    steps:
-      - checkout
-      - run: docker build -f Dockerfile.kustomize .
+      - run: make test
 workflows:
   version: 2
   test:
     jobs:
-      - opa
-      - constraint
-      - kustomize
+      - test
