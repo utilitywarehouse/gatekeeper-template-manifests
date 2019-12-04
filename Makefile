@@ -1,7 +1,7 @@
 test: opa kustomize constraint
 
 opa:
-	@docker run --rm -v $$PWD:/src openpolicyagent/opa test -v /src/base
+	@docker run --rm -v $$PWD:/src openpolicyagent/opa test --ignore *.yaml --ignore *.json -v /src/base
 
 kustomize:
 	@docker build -t gatekeeper-template-manifests-kustomize -f Dockerfile.kustomize .
