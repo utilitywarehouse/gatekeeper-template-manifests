@@ -4,3 +4,4 @@ resources:
   - library/delete-annotation-requirement/template.yaml
   - library/ingress-host-restriction/template.yaml
   - library/name-label-match/template.yaml
+  - library/requiredlabels/template.yaml
