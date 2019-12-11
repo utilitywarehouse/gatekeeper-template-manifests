@@ -1,9 +1,0 @@
-FROM golang:1.13
-
-WORKDIR /go/src/constraint-template-test
-
-COPY lib/constraint-template-test .
-COPY ./base base
-
-RUN go get -d ./...
-RUN go run constraint-template-test.go base/library/*
