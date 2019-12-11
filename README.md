@@ -12,7 +12,7 @@ Reference the base in your `kustomization.yaml`, like so:
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 bases:
-  - github.com/utilitywarehouse/gatekeeper-template-manifests/base?ref=1.2.3
+  - github.com/utilitywarehouse/gatekeeper-template-manifests/base?ref=1.2.4
 ```
 
 Refer to the `example/`.
