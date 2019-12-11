@@ -33,7 +33,7 @@ Or the tests can be ran separately:
 
 ```
 $ make opa
-$ make constraint
+$ make template
 $ make kustomize
 ```
 
