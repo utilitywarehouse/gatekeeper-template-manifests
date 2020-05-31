@@ -1,0 +1,38 @@
+# Protect certain annotations on namespaces
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: protected-annotation
+spec:
+  crd:
+    spec:
+      names:
+        kind: ProtectedAnnotation
+      validation:
+        openAPIV3Schema:
+          required: [annotationGlob, namespaceGlobWhitelist]
+          properties:
+            annotationGlob:
+              type: string
+            namespaceGlobWhitelist:
+              type: list
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package kubernetes.validating.annotaion
+        
+        violation[msg] {
+            input.review.object.metadata.annotations[ns_annotations]
+        
+            # check namespace has "sensitive" annotations
+            glob.match(input.parameters.annotationGlob, [], ns_annotations)
+            
+            # check namespace is not in the whitelist
+            not whitelisted(input.parameters.namespaceGlobWhitelist, input.review.namespace)
+        
+            msg := sprintf("Namespace %v not allowed annotation %v", [input.review.namespace, ns_annotations])
+        }
+        
+        whitelisted(namespaceGlobWhitelist, namespace) {
+            glob.match(namespaceGlobWhitelist[_], [], input.review.namespace)
+        }

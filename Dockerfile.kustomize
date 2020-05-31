@@ -1,13 +1,13 @@
-FROM alpine:3
+FROM alpine
 
 COPY ./base base
 COPY ./example example
 
-ENV KUSTOMIZE_VERSION="v3.4.0"
+ENV KUSTOMIZE_VERSION="v3.6.1"
 
 RUN \
   apk add --no-cache git &&\
-    wget -O - https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz |\
+  wget -O - https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz |\
     tar xz -C /usr/local/bin/
 
 RUN kustomize build base
