@@ -1,6 +1,6 @@
-package kubernetes.validating.annotation
+package protectedannotation
 
-violation[msg] {
+violation[{"msg": msg}] {
     input.review.object.metadata.annotations[ns_annotations]
 
     # check namespace has "sensitive" annotations
