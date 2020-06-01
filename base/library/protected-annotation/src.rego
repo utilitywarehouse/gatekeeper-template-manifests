@@ -1,4 +1,4 @@
-package kubernetes.validating.annotaion
+package kubernetes.validating.annotation
 
 violation[msg] {
     input.review.object.metadata.annotations[ns_annotations]
@@ -13,5 +13,5 @@ violation[msg] {
 }
 
 whitelisted(namespaceGlobWhitelist, namespace) {
-    glob.match(namespaceGlobWhitelist[_], [], input.review.namespace)
+    glob.match(namespaceGlobWhitelist[_], [], namespace)
 }
