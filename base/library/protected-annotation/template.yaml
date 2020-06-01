@@ -19,9 +19,9 @@ spec:
   targets:
     - target: admission.k8s.gatekeeper.sh
       rego: |
-        package kubernetes.validating.annotaion
+        package protectedannotation
         
-        violation[msg] {
+        violation[{"msg": msg}] {
             input.review.object.metadata.annotations[ns_annotations]
         
             # check namespace has "sensitive" annotations
@@ -34,5 +34,5 @@ spec:
         }
         
         whitelisted(namespaceGlobWhitelist, namespace) {
-            glob.match(namespaceGlobWhitelist[_], [], input.review.namespace)
+            glob.match(namespaceGlobWhitelist[_], [], namespace)
         }
