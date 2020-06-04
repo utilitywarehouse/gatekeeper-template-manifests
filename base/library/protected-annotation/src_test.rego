@@ -1,4 +1,4 @@
-package kubernetes.validating.annotaion
+package protectedannotation
 
 test_ns_whitelisted {
     results := violation with input as {
