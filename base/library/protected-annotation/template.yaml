@@ -15,7 +15,7 @@ spec:
             annotationGlob:
               type: string
             namespaceGlobWhitelist:
-              type: list
+              type: array
   targets:
     - target: admission.k8s.gatekeeper.sh
       rego: |
