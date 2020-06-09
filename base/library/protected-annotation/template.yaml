@@ -2,7 +2,7 @@
 apiVersion: templates.gatekeeper.sh/v1beta1
 kind: ConstraintTemplate
 metadata:
-  name: protected-annotation
+  name: protectedannotation
 spec:
   crd:
     spec:
