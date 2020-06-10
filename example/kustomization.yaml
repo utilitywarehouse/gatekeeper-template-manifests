@@ -8,4 +8,4 @@ resources:
   - ingress-host-restriction.yaml
   - namespace-name-label-match.yaml
   - required-labels.yaml
-  - protected-annotation.yaml
+  - taint-toleration.yaml

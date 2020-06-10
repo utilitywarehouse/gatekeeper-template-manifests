@@ -6,4 +6,4 @@ resources:
   - library/delete-annotation-requirement/template.yaml
   - library/ingress-host-restriction/template.yaml
   - library/name-label-match/template.yaml
-  - library/protected-annotation/template.yaml
+  - library/taint-tolerations/template.yaml
