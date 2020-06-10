@@ -23,14 +23,13 @@ spec:
                 effect:
                   type: string
               required:
-              - key
-              - value
-              - effect
+                - key
+                - effect
             allowGlobalToleration:
               type: boolean
           required:
-          - restrictedTaint
-          - allowGlobalToleration
+            - restrictedTaint
+            - allowGlobalToleration
   targets:
     - target: admission.k8s.gatekeeper.sh
       rego: |

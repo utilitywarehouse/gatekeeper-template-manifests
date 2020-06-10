@@ -16,5 +16,4 @@ spec:
     restrictedTaint:
       key: node-role.kubernetes.io/master
       effect: NoSchedule
-      operator: Exists
     allowGlobalToleration: false
