@@ -1,0 +1,20 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: RestrictedTaintToleration
+metadata:
+  name: master
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces:
+      - kube-system
+      - sys-flatcar
+      - sys-log
+      - sys-prom
+  parameters:
+    restrictedTaint:
+      key: node-role.kubernetes.io/master
+      effect: NoSchedule
+      operator: Exists
+    allowGlobalToleration: false
