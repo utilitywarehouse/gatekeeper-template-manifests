@@ -889,7 +889,7 @@ test_update_request_denied {
     count(results) > 0
 }
 
-# test that a valid update request is denied
+# test that a valid update request is allowed
 test_update_request_allowed {
     results := violation with input as {
         "parameters": {
@@ -903,6 +903,90 @@ test_update_request_allowed {
         },
         "review": {
             "operation": "UPDATE",
+            "namespace": "example-ns",
+            "kind": {
+                "kind": "Ingress"
+            },
+            "object": {
+                "metadata": {
+                    "name": "test"
+                },
+                "spec": {
+                    "rules": [
+                        {
+                            "host": "example.com",
+                            "http": {
+                                "paths": [
+                                    {
+                                        "path": "/"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }
+    count(results) == 0
+}
+
+# test that a violating request with an empty operation is denied
+test_empty_operation_request_denied {
+    results := violation with input as {
+        "parameters": {
+            "namespacePathWhitelist":
+                {
+                    "example-ns": [
+                        "/"
+                    ]
+                },
+            "host": "example.com"
+        },
+        "review": {
+            "operation": "",
+            "namespace": "example-ns",
+            "kind": {
+                "kind": "Ingress"
+            },
+            "object": {
+                "metadata": {
+                    "name": "test"
+                },
+                "spec": {
+                    "rules": [
+                        {
+                            "host": "example.com",
+                            "http": {
+                                "paths": [
+                                    {
+                                        "path": "/different"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }
+    count(results) > 0
+}
+
+# test that a valid request with an empty operation is allowed
+test_empty_operation_request_allowed {
+    results := violation with input as {
+        "parameters": {
+            "namespacePathWhitelist":
+                {
+                    "example-ns": [
+                        "/"
+                    ]
+                },
+            "host": "example.com"
+        },
+        "review": {
+            "operation": "",
             "namespace": "example-ns",
             "kind": {
                 "kind": "Ingress"
