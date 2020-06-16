@@ -10,9 +10,8 @@ violation[{"msg": msg, "details": {"host": host, "namespace": namespace, "paths"
     # resource kind is Ingress
     input.review.kind.kind == "Ingress"
 
-    # operation is CREATE or UPDATE
-    operations = {"CREATE", "UPDATE"}
-    operations[input.review.operation]
+    # always allow deletion of offending ingresses
+    input.review.operation != "DELETE"
 
     # ingress host matches the restricted host
     host == input.parameters.host
