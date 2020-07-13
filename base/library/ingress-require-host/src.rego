@@ -8,7 +8,7 @@ violation[{"msg": msg}] {
   input.review.operation != "DELETE"
 
   # test if each rule has a host
-  hosts := {x | x = input.review.object.spec.rules[_].host}
+  hosts := [x | x := input.review.object.spec.rules[_].host]
   count(hosts) != count(input.review.object.spec.rules)
 
   msg := sprintf("Ingress '%v' denied; all rules must have a host defined", [input.review.object.metadata.name])

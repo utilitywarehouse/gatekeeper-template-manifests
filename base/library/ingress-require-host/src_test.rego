@@ -17,7 +17,7 @@ test_pass {
               "host": "test.example.com"
             },
             {
-              "host": "test0.example.com",
+              "host": "test.example.com",
               "http": {
                 "paths": [
                   {
