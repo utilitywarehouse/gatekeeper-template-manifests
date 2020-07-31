@@ -17,7 +17,6 @@ a regular expression match.
 - `inverse` - perform an inverse match. The default (`false`) will produce a
   violation for matching routes. Whereas, `true` will block routes that DON'T
   match the regular expression.
-- `namespaceWhitelist` - a list of namespaces that are exempt from the constraint.
 
 ## Examples
 
@@ -32,14 +31,13 @@ spec:
   match:
     kinds:
       - apiGroups: ["traefik.containo.us"]
-        kinds: ["IngressRoute"]
-  parameters:
-    message: |-
-      An IngressRoute matching example.com is not permitted in this namespace
-    matchRegex: "Host\\(.*(`|\")example.com(`|\").*\\)"
-    namespaceWhitelist:
+        kinds: ["IngressRoute", "IngressRouteTCP"]
+    excludedNamespaces:
       - kube-system
       - example-namespace
+  parameters:
+    message: "An IngressRoute or IngressRouteTCP matching example.com is not permitted in this namespace"
+    matchRegex: "Host(SNI)?\\([^\\)\\(]*`example.com`[^\\)\\(]*\\)"
 ```
 
 Use an inverse match to require a `Host()` value with valid FQDNs for
@@ -56,8 +54,8 @@ spec:
       - apiGroups: ["traefik.containo.us"]
         kinds: ["IngressRoute"]
   parameters:
-    message: "All route matches must contain a Host rule with a valid fqdn"
-    matchRegex: "Host\\(((`|\")([a-zA-Z0-9]{1,})(`|\")(,|, )?|(`|\")([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\\.)+[a-z]{2,}(`|\")(,|, )?)+\\)"
+    message: "All route matches must contain a Host rule with valid hostnames as defined by RFC 1123"
+    matchRegex: "Host\\((`(([a-zA-Z0-9]{1,})|([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\\.)+[a-z]{2,})`(, ?)?)+\\)"
     inverse: true
 ```
 
@@ -75,8 +73,7 @@ spec:
         kinds: ["IngressRoute", "IngressRouteTCP"]
   parameters:
     message: "Route matches must not contain ||"
-    matchRegex: "||"
-    namespaceWhitelist: ["kube-system"]
+    matchRegex: "\\|\\|"
 ```
 
 Prevent a wildcard match in `HostSNI` for `IngressRouteTCP` resources:
@@ -93,5 +90,5 @@ spec:
         kinds: ["IngressRouteTCP"]
   parameters:
     message: "HostSNI rules must not contain a wildcard host '*'"
-    matchRegex: "HostSNI\\(.*((`|\")(\\*)(`|\"))+.*\\)"
+    matchRegex: "HostSNI\\([^\\)\\(]*`\\*`[^\\)\\(]*\\)"
 ```
