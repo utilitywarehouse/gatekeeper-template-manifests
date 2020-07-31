@@ -34,62 +34,6 @@ test_ingressroute_inverse {
   count(results) == 4
 }
 
-# Test that a matching route doesn't produce a violation if it's whitelisted
-test_ingressroute_whitelist {
-  results := violation with input as {
-    "parameters": {
-      "matchRegex": "Host\\(.*(`|\")example.com(`|\").*\\)",
-      "namespaceWhitelist": ["kube-system", "example"],
-    },
-    "review": {
-      "namespace": "example",
-      "operation": "CREATE",
-      "kind": {"kind": "IngressRoute"},
-      "object": {
-        "metadata": {"name": "test"},
-        "spec": {"routes": [
-          {"match": "Host(`example.com`)"},
-          {"match": "Host(\"example.com\")"},
-          {"match": "Host(`example.com`, `not-example.com`)"},
-          {"match": "Host(\"not-example.com\", \"example.com\")"},
-          {"match": "Host(`not-example.com`)"},
-        ]},
-      },
-    },
-  }
-
-  count(results) == 0
-}
-
-# Test that a matching route produces a violation if it isn't in the whitelist
-test_ingressroute_whitelist_violation {
-  results := violation with input as {
-    "parameters": {
-      "matchRegex": "Host\\(.*(`|\")example.com(`|\").*\\)",
-      "namespaceWhitelist": ["kube-system", "example"],
-    },
-    "review": {
-      "namespace": "notwhitelisted",
-      "operation": "CREATE",
-      "kind": {"kind": "IngressRoute"},
-      "object": {
-        "metadata": {"name": "test"},
-        "spec": {"routes": [
-          {"match": "Host(`example.com`)"},
-          {"match": "Host(\"example.com\")"},
-          {"match": "Host(`example.com`, `not-example.com`)"},
-          {"match": "Host(\"not-example.com\", \"example.com\")"},
-          {"match": "Host(\"not-example.com\", \"example.com\") && PathPrefix(`/example`)"},
-          # shouldn't produce a violation
-          {"match": "Host(`not-example.com`)"},
-        ]},
-      },
-    },
-  }
-
-  count(results) == 5
-}
-
 # Test that a matching string produces a violation
 test_ingressroute {
   results := violation with input as {
