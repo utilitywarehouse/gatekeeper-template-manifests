@@ -17,10 +17,6 @@ spec:
               type: string
             inverse:
               type: boolean
-            namespaceWhitelist:
-              type: array
-              items:
-                type: string
             message:
               type: string
   targets:
@@ -43,10 +39,6 @@ spec:
           msg := parameters.message
         }
 
-        whitelisted(namespace) {
-          input.parameters.namespaceWhitelist[_] == namespace
-        }
-
         # inverse = false
         violation[{"msg": msg}] {
           # only operate on supported kinds
@@ -61,9 +53,6 @@ spec:
           # match the regex to the route match field
           match := input.review.object.spec.routes[_].match
           re_match(match_regex, match)
-
-          # namespace isn't in the whitelist
-          not whitelisted(input.review.namespace)
 
           def_msg := sprintf("%s matches the restricted pattern: %s", [match, match_regex])
 
@@ -84,9 +73,6 @@ spec:
           # the route match field doesn't match the regex
           match := input.review.object.spec.routes[_].match
           not re_match(match_regex, match)
-
-          # namespace isn't in the whitelist
-          not whitelisted(input.review.namespace)
 
           def_msg := sprintf("%s doesn't match the required pattern: %s", [match, match_regex])
 

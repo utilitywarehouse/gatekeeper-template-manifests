@@ -15,10 +15,6 @@ get_message(parameters, _default) = msg {
   msg := parameters.message
 }
 
-whitelisted(namespace) {
-  input.parameters.namespaceWhitelist[_] == namespace
-}
-
 # inverse = false
 violation[{"msg": msg}] {
   # only operate on supported kinds
@@ -33,9 +29,6 @@ violation[{"msg": msg}] {
   # match the regex to the route match field
   match := input.review.object.spec.routes[_].match
   re_match(match_regex, match)
-
-  # namespace isn't in the whitelist
-  not whitelisted(input.review.namespace)
 
   def_msg := sprintf("%s matches the restricted pattern: %s", [match, match_regex])
 
@@ -56,9 +49,6 @@ violation[{"msg": msg}] {
   # the route match field doesn't match the regex
   match := input.review.object.spec.routes[_].match
   not re_match(match_regex, match)
-
-  # namespace isn't in the whitelist
-  not whitelisted(input.review.namespace)
 
   def_msg := sprintf("%s doesn't match the required pattern: %s", [match, match_regex])
 
