@@ -9,7 +9,7 @@ package ingressroutematchrestriction
 test_ingressroute_inverse {
   results := violation with input as {
     "parameters": {
-      "matchRegex": "Host\\(((`|\")([a-zA-Z0-9]{1,})(`|\")|(`|\")([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\\.)+[a-z]{2,}(`|\"))\\)",
+      "matchRegex": "Host\\((`(([a-zA-Z0-9]{1,})|([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\\.)+[a-z]{2,})`(, ?)?)+\\)",
       "inverse": true,
     },
     "review": {
@@ -19,23 +19,24 @@ test_ingressroute_inverse {
       "object": {
         "metadata": {"name": "test"},
         "spec": {"routes": [
-          {"match": "Host(`example.com`)"},
-          {"match": "Host(\"test-fqdn.example.com\") && PathPrefix(\"/test\")"},
-          # these matches should produce violations
-          {"match": "Host(`example.com`, \"test-fqdn.example.com\")"},
-          {"match": "PathPrefix(\"/test\")"},
+          # violations
+          {"match": "PathPrefix(`/test`)"},
           {"match": "Host(`invalid_host.example.com`)"},
           {"match": "Host(`example.com` `another.example.com`)"},
+          # not violations
+          {"match": "Host(`example.com`)"},
+          {"match": "Host(`example.com`, `test-fqdn.example.com`)"},
+          {"match": "Host(`test-fqdn.example.com`) && PathPrefix(`/test`)"},
         ]},
       },
     },
   }
 
-  count(results) == 4
+  count(results) == 3
 }
 
-# Test that a matching string produces a violation
-test_ingressroute {
+# Test a regex that blocks the use of the || operator
+test_ingressroute_or {
   results := violation with input as {
     "parameters": {"matchRegex": "\\|\\|"},
     "review": {
@@ -45,9 +46,10 @@ test_ingressroute {
       "object": {
         "metadata": {"name": "test"},
         "spec": {"routes": [
+          # violations
           {"match": "Host(`example.com`) || PathPrefix(`/`)"},
-          # these matches shouldn't cause a violation
-          {"match": "Host(`example.com`) && PathPrefix(`/`)"},
+          # not violations
+          {"match": "Host(`example.com`)"},
           {"match": "Host(`example.com`) && PathPrefix(`/`)"},
         ]},
       },
@@ -57,11 +59,11 @@ test_ingressroute {
   count(results) == 1
 }
 
-# Test matching an IngressRouteTCP resource. The regular expression tests for a
-# wildcard HostSNI
+# Test a regex that blocks a wildcard HostSNI for an IngressRouteTCP
+# resource
 test_ingressroutetcp_wildcard_sni {
   results := violation with input as {
-    "parameters": {"matchRegex": "HostSNI\\(.*((`|\")(\\*)(`|\"))+.*\\)"},
+    "parameters": {"matchRegex": "HostSNI\\([^\\)\\(]*`\\*`[^\\)\\(]*\\)"},
     "review": {
       "namespace": "example",
       "operation": "CREATE",
@@ -69,18 +71,48 @@ test_ingressroutetcp_wildcard_sni {
       "object": {
         "metadata": {"name": "test"},
         "spec": {"routes": [
+          # violations
           {"match": "HostSNI(`*`)"},
-          {"match": "HostSNI(\"*\")"},
-          {"match": "HostSNI(`*`, `example.com`)"},
-          {"match": "HostSNI(\"example.com\", \"*\")"},
-          # these matches shouldn't cause a violation
-          {"match": "HostSNI(\"example.com\", \"another-example.com\")"},
-          {"match": "HostSNI(\"example.com\")"},
-          {"match": "HostSNI(\"*.example.com\")"},
+          {"match": "HostSNI(`example.com`, `*`)"},
+          # not violations
+          {"match": "HostSNI(`example.com`)"},
+          {"match": "HostSNI(`example.com`, `another-example.com`)"},
+          {"match": "HostSNI(`*.example.com`)"},
         ]},
       },
     },
   }
 
-  count(results) == 4
+  count(results) == 2
+}
+
+# Test a regex that blocks the use of example.com as a Host or HostSNI value
+test_ingressroute_host {
+  results := violation with input as {
+    "parameters": {"matchRegex": "Host(SNI)?\\([^\\)\\(]*`example.com`[^\\)\\(]*\\)"},
+    "review": {
+      "namespace": "example",
+      "operation": "UPDATE",
+      "kind": {"kind": "IngressRoute"},
+      "object": {
+        "metadata": {"name": "test"},
+        "spec": {"routes": [
+          # violations
+          {"match": "Host(`example.com`)"},
+          {"match": "Host(`example.com`, `another-example.com`)"},
+          {"match": "Host(`example.com`) && PathPrefix(`/example`)"},
+          {"match": "HostSNI(`example.com`)"},
+          {"match": "HostSNI(`example.com`, `another-example.com`)"},
+          # not violations
+          {"match": "Host(`not-example.com`)"},
+          {"match": "Host(`not-example.com`, `still-not-example.com`)"},
+          {"match": "Host(`not-example.com`) && Headers(`somevalue`, `example.com`)"},
+          {"match": "HostSNI(`not-example.com`)"},
+          {"match": "HostSNI(`not-example.com`, `still-not-example.com`)"},
+        ]},
+      },
+    },
+  }
+
+  count(results) == 5
 }
