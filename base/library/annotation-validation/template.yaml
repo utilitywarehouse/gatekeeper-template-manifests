@@ -1,0 +1,49 @@
+# annotationvalidation validates the content of an annotation against a regex,
+# provided it exists
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: annotationvalidation
+spec:
+  crd:
+    spec:
+      names:
+        kind: AnnotationValidation
+      validation:
+        openAPIV3Schema:
+          properties:
+            message:
+              type: string
+            annotations:
+              type: array
+              items:
+                type: object
+                properties:
+                  key:
+                    type: string
+                  allowedRegex:
+                    type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package annotationvalidation
+
+        get_message(parameters, _default) = msg {
+          not parameters.message
+          msg := _default
+        }
+
+        get_message(parameters, _default) = msg {
+          msg := parameters.message
+        }
+
+        violation[{"msg": msg}] {
+          value := input.review.object.metadata.annotations[key]
+
+          expected := input.parameters.annotations[_]
+          expected.key == key
+          not re_match(expected.allowedRegex, value)
+
+          def_msg := sprintf("Annotation <%v: %v> does not satisfy allowed regex: %v", [key, value, expected.allowedRegex])
+          msg := get_message(input.parameters, def_msg)
+        }

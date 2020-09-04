@@ -3,6 +3,7 @@ kind: Kustomization
 bases:
   - github.com/open-policy-agent/gatekeeper/library/general/requiredlabels?ref=v3.1.0-beta.1
 resources:
+  - library/annotation-validation/template.yaml
   - library/delete-annotation-requirement/template.yaml
   - library/ingress-host-restriction/template.yaml
   - library/ingress-require-host/template.yaml
