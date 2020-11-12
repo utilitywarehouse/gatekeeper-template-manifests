@@ -1,7 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 bases:
-  - github.com/open-policy-agent/gatekeeper/library/general/requiredlabels?ref=v3.1.0-beta.1
+  - github.com/open-policy-agent/gatekeeper-library/library/general/requiredlabels?ref=ce24dd6802b8c845f80a27731b9095cc0864726f
 resources:
   - library/annotation-validation/template.yaml
   - library/delete-annotation-requirement/template.yaml
