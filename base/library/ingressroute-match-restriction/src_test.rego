@@ -116,3 +116,126 @@ test_ingressroute_host {
 
   count(results) == 5
 }
+
+# Test exceptions
+test_ingressroute_exception {
+  results := violation with input as {
+    "parameters": {
+      "matchRegex": "Host(SNI)?\\([^\\)\\(]*`example.com`[^\\)\\(]*\\)",
+      "exceptions": [
+        {
+          "name": "test",
+          "namespace": "example",
+          "kind": "IngressRoute",
+          "match": "Host(`example.com`) && PathPrefix(`/example`)",
+        },
+        {
+          "name": "test",
+          "namespace": "example",
+          "kind": "IngressRoute",
+          "match": "Host(`example.com`) && Path(`/path`)",
+        },
+        # shouldn't produce exceptions because the name/namespace/kinds are
+        # different
+        {
+          "name": "not-test",
+          "namespace": "example",
+          "kind": "IngressRoute",
+          "match": "Host(`example.com`)",
+        },
+        {
+          "name": "test",
+          "namespace": "not-example",
+          "kind": "IngressRoute",
+          "match": "Host(`example.com`)",
+        },
+        {
+          "name": "test",
+          "namespace": "example",
+          "kind": "IngressRouteTCP",
+          "match": "Host(`example.com`)",
+        },
+      ],
+    },
+    "review": {
+      "namespace": "example",
+      "operation": "UPDATE",
+      "kind": {"kind": "IngressRoute"},
+      "object": {
+        "metadata": {"name": "test"},
+        "spec": {"routes": [
+          # violations
+          {"match": "Host(`example.com`)"},
+          {"match": "Host(`example.com`) && PathPrefix(`/path`)"},
+          # not violations
+          {"match": "Host(`example.com`) && PathPrefix(`/example`)"},
+          {"match": "Host(`example.com`) && Path(`/path`)"},
+        ]},
+      },
+    },
+  }
+
+  count(results) == 2
+}
+
+# Test exceptions for an inverse match
+test_ingressroute_exception_inverse {
+  results := violation with input as {
+    "parameters": {
+      "matchRegex": "Host\\((`(([a-zA-Z0-9]{1,})|([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\\.)+[a-z]{2,})`(,?)?)+\\)",
+      "inverse": true,
+      "exceptions": [
+        {
+          "name": "test",
+          "namespace": "example",
+          "kind": "IngressRoute",
+          "match": "HostRegexp(`{subdomain:.*}.example.com`)",
+        },
+        {
+          "name": "test",
+          "namespace": "example",
+          "kind": "IngressRoute",
+          "match": "Path(`/health`)",
+        },
+        # shouldn't produce exceptions because the name/namespace/kinds are
+        # different
+        {
+          "name": "not-test",
+          "namespace": "example",
+          "kind": "IngressRoute",
+          "match": "Path(`/`)",
+        },
+        {
+          "name": "test",
+          "namespace": "not-example",
+          "kind": "IngressRoute",
+          "match": "Path(`/`)",
+        },
+        {
+          "name": "test",
+          "namespace": "example",
+          "kind": "IngressRouteTCP",
+          "match": "Path(`/`)",
+        },
+      ],
+    },
+    "review": {
+      "namespace": "example",
+      "operation": "UPDATE",
+      "kind": {"kind": "IngressRoute"},
+      "object": {
+        "metadata": {"name": "test"},
+        "spec": {"routes": [
+          # violations
+          {"match": "HostRegexp(`{host:.*}`)"},
+          {"match": "Path(`/`)"},
+          # not violations
+          {"match": "HostRegexp(`{subdomain:.*}.example.com`)"},
+          {"match": "Path(`/health`)"},
+        ]},
+      },
+    },
+  }
+
+  count(results) == 2
+}
