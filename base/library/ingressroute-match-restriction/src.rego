@@ -15,6 +15,15 @@ get_message(parameters, _default) = msg {
   msg := parameters.message
 }
 
+excepted(match) {
+  exceptions := input.parameters.exceptions
+
+  input.review.object.metadata.name == exceptions[i].name
+  input.review.namespace == exceptions[i].namespace
+  input.review.kind.kind == exceptions[i].kind
+  match == exceptions[i].match
+}
+
 # inverse = false
 violation[{"msg": msg}] {
   # only operate on supported kinds
@@ -29,6 +38,10 @@ violation[{"msg": msg}] {
   # match the regex to the route match field
   match := input.review.object.spec.routes[_].match
   re_match(match_regex, match)
+
+  # if there's an exception for this match then it shouldn't produce a
+  # violation
+  not excepted(match)
 
   def_msg := sprintf("%s matches the restricted pattern: %s", [match, match_regex])
 
@@ -49,6 +62,10 @@ violation[{"msg": msg}] {
   # the route match field doesn't match the regex
   match := input.review.object.spec.routes[_].match
   not re_match(match_regex, match)
+
+  # if there's an exception for this match then it shouldn't produce a
+  # violation
+  not excepted(match)
 
   def_msg := sprintf("%s doesn't match the required pattern: %s", [match, match_regex])
 

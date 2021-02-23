@@ -5,13 +5,13 @@
 
 code=0
 
-rego_field="spec.targets[0].rego"
+rego_field=".spec.targets[0].rego"
 
 while read template_file; do
 	IFS=
 	src_file=$(dirname ${template_file})/src.rego
 
-	DIFF=$(diff -B <(cat ${src_file})  <(yq r "${template_file}" "${rego_field}"))
+	DIFF=$(diff -B <(cat ${src_file})  <(yq eval "${rego_field}" "${template_file}"))
 
 	if [[ ${DIFF} != "" ]]; then
 		echo -e "${template_file}: the contents of ${rego_field} don't match ${src_file}:\n\n${DIFF}"

@@ -13,7 +13,7 @@ kustomize:
 
 .PHONY: template
 template:
-	@docker run -i --rm -v $$PWD:/workdir:ro mikefarah/yq /bin/sh -c " \
+	@docker run -i --rm -v $$PWD:/workdir:ro --entrypoint sh mikefarah/yq:4 -c " \
 		apk --no-cache add bash && \
 		/workdir/lib/template-match-src/template-match-src"
 
