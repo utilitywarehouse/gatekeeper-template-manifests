@@ -17,6 +17,12 @@ a regular expression match.
 - `inverse` - perform an inverse match. The default (`false`) will produce a
   violation for matching routes. Whereas, `true` will block routes that DON'T
   match the regular expression.
+- `exceptions` - a list of resources and matches that that are exempt from the
+  constraint. The following fields are required:
+  - `kind` - the kind of resource
+  - `name` - the name of the resource
+  - `namespace` - the namespace the resource is in
+  - `match` - the match string that is permitted
 
 ## Examples
 
@@ -57,6 +63,30 @@ spec:
     message: "All route matches must contain a Host rule with valid hostnames as defined by RFC 1123"
     matchRegex: "Host\\((`(([a-zA-Z0-9]{1,})|([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\\.)+[a-z]{2,})`(, ?)?)+\\)"
     inverse: true
+```
+
+Use an exception to allow an `IngressRoute` to define a match without a `Host`
+match:
+
+```yaml
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: IngressRouteMatchRestriction
+metadata:
+  name: require-host
+spec:
+  match:
+    kinds:
+      - apiGroups: ["traefik.containo.us"]
+        kinds: ["IngressRoute"]
+  parameters:
+    message: "All route matches must contain a Host rule with valid hostnames as defined by RFC 1123"
+    matchRegex: "Host\\((`(([a-zA-Z0-9]{1,})|([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\\.)+[a-z]{2,})`(, ?)?)+\\)"
+    inverse: true
+    exceptions:
+      - kind: IngressRoute
+        name: example-route
+        namespace: example-ns
+        match: HostRegexp(`{subdomain:.*}.example.com`)
 ```
 
 Ban the `||` operator in all namespaces except `kube-system`:
