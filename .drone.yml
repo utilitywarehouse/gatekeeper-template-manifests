@@ -4,13 +4,13 @@ name: default
 
 steps:
   - name: test-opa
-    image: alpine
-    commands:
-      - apk add jq
-      - latest=$(wget -q -O- "https://api.github.com/repos/open-policy-agent/opa/releases/latest" | jq -r .tag_name)
-      - wget -O opa https://github.com/open-policy-agent/opa/releases/download/$latest/opa_linux_amd64
-      - chmod +x opa
-      - ./opa test --ignore *.yaml --ignore *.json -v base
+    image: openpolicyagent/opa
+    command:
+      - test
+      - --ignore=*.yaml
+      - --ignore=*.json
+      - -v
+      - base
   - name: test-kustomize
     image: plugins/docker
     settings:
