@@ -1,0 +1,28 @@
+kind: pipeline
+type: kubernetes
+name: default
+
+steps:
+  - name: test-opa
+    image: alpine
+    commands:
+      - apk add jq
+      - latest=$(wget -q -O- "https://api.github.com/repos/open-policy-agent/opa/releases/latest" | jq -r .tag_name)
+      - wget -O opa https://github.com/open-policy-agent/opa/releases/download/$latest/opa_linux_amd64
+      - chmod +x opa
+      - ./opa test --ignore *.yaml --ignore *.json -v base
+  - name: test-kustomize
+    image: plugins/docker
+    settings:
+      dry_run: true
+      repo: test
+      dockerfile: Dockerfile.kustomize
+  - name: test-template
+    image: mikefarah/yq:4
+    commands:
+      - apk --no-cache add bash && lib/template-match-src/template-match-src
+
+trigger:
+  event:
+    exclude:
+      - pull_request
