@@ -13,9 +13,10 @@ kustomize:
 
 .PHONY: template
 template:
-	@docker run -i --rm -v $$PWD:/workdir:ro --entrypoint sh mikefarah/yq:4 -c " \
-		apk --no-cache add bash && \
-		/workdir/lib/template-match-src/template-match-src"
+	@docker run -i --rm -v $$PWD:/workdir:ro \
+	  --entrypoint sh \
+	  mikefarah/yq:4.9.8 \
+	  -c "/workdir/lib/template-match-src/template-match-src"
 
 .PHONY: install-git-hooks
 install-git-hooks:

@@ -5,6 +5,7 @@ bases:
   - github.com/open-policy-agent/gatekeeper-library/library/general/externalip?ref=980275c8bccae79089a5a62d79267b16c5f57c6c
 resources:
   - library/annotation-validation/template.yaml
+  - library/block-node-port/template.yaml
   - library/delete-annotation-requirement/template.yaml
   - library/ingress-host-restriction/template.yaml
   - library/ingress-require-host/template.yaml
