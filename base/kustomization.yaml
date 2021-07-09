@@ -9,5 +9,6 @@ resources:
   - library/ingress-host-restriction/template.yaml
   - library/ingress-require-host/template.yaml
   - library/ingressroute-match-restriction/template.yaml
+  - library/k8s-block-node-port/template.yaml
   - library/name-label-match/template.yaml
   - library/taint-tolerations/template.yaml
