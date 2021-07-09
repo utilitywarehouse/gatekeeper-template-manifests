@@ -18,9 +18,9 @@ steps:
       repo: test
       dockerfile: Dockerfile.kustomize
   - name: test-template
-    image: mikefarah/yq:4
+    image: mikefarah/yq:4.9.8
     commands:
-      - apk --no-cache add bash && lib/template-match-src/template-match-src
+      - lib/template-match-src/template-match-src
 
 trigger:
   event:
