@@ -7,9 +7,6 @@ spec:
     spec:
       names:
         kind: RestrictedTaintToleration
-        listKind: RestrictedTaintToleration
-        plural: restrictedtainttolerations
-        singular: restrictedtainttoleration
       validation:
         openAPIV3Schema:
           properties:
