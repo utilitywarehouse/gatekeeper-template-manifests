@@ -1,6 +1,6 @@
 # gatekeeper-template-manifests
 
-[![CircleCI](https://circleci.com/gh/utilitywarehouse/gatekeeper-manifests/tree/master.svg?style=svg)](https://circleci.com/gh/utilitywarehouse/gatekeeper-template-manifests/tree/master)
+![Github Actions](https://github.com/utilitywarehouse/gatekeeper-template-manifests/actions/workflows/test.yaml/badge.svg)
 
 This repository provides a library of Open Policy Agent gatekeeper `ConstraintTemplates` as a Kustomize base.
 
