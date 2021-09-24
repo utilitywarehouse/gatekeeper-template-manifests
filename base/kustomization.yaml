@@ -11,4 +11,5 @@ resources:
   - library/ingress-require-host/template.yaml
   - library/ingressroute-match-restriction/template.yaml
   - library/name-label-match/template.yaml
+  - library/pod-node-restriction/template.yaml
   - library/taint-tolerations/template.yaml
